@@ -13,7 +13,7 @@ A knowledge hub that lets users upload, search, and query across documents and i
 * **Multimodal chatbot**: Natural language + image queries through FastAPI REST endpoints.
 * **Vector search pipeline**:
 
-  * MinIO for image storage.
+  * S3 for image storage.
   * PostgreSQL for metadata (URLs, hashes, dimensions).
   * pgvector + CLIP embeddings (image + text).
   * OCR text extraction for screenshots/diagrams.
@@ -29,7 +29,7 @@ A knowledge hub that lets users upload, search, and query across documents and i
 
 1. **Upload & Store**
 
-   * User uploads an image → store bytes in **MinIO/S3**.
+   * User uploads an image → store bytes in **S3**.
    * Save metadata in **Postgres** (URL, hash, width/height).
 
 2. **Represent**
@@ -64,8 +64,7 @@ A knowledge hub that lets users upload, search, and query across documents and i
 * **Frontend**: Angular + React (micro-frontends, single-spa).
 * **Backend**: FastAPI REST services.
 * **Auth**: JWT.
-* **Storage**: MinIO (S3-compatible).
-* **Database**: PostgreSQL + pgvector.
+* **Database**: PostgreSQL + pgvector, S3.
 * **Search**: ANN (IVF/HNSW).
 * **Embeddings**: HuggingFace CLIP + OCR text.
 * **Containerization**: Docker + docker-compose.
@@ -98,14 +97,4 @@ Backend available on `localhost:8000`.
   Omitting `--password` will prompt securely. The command hashes the password server-side and persists the user without exposing credentials in application logs.
 
 ---
-
-## 📌 Roadmap
-
-* [x] Micro-frontend integration (Angular + React + JWT auth).
-* [x] FastAPI backend with MinIO + pgvector.
-* [x] Image embeddings + OCR text embeddings.
-* [x] ANN similarity search.
-* [x] Context composition with GPT-4o multimodal.
-* [x] Text + image hybrid retrieval optimization.
-
 
