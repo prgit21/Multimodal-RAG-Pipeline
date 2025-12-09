@@ -1,100 +1,77 @@
 
-# RAG Knowledge Hub
+# Multimodal RAG Pipeline
 
-**Micro-frontends | Multimodal Chatbot | Retrieval-Augmented Generation (RAG)**
+**Text–Image Retrieval-Augmented Generation System**
 
-A knowledge hub that lets users upload, search, and query across documents and images using **retrieval-augmented multimodal generation**. Built with **Angular + React micro-frontends, FastAPI backend, Dockerized services, Postgres + pgvector, MinIO object storage, and HuggingFace embeddings**.
+A production-oriented **multimodal RAG pipeline** enabling semantic search and question answering over **documents and images** by combining **vector retrieval, distributed backend services, and multimodal LLMs**.
 
----
-
-##  Features
-
-* **Micro-frontend architecture**: Angular + React unified via `single-spa`, JWT-protected routing, Nginx proxy.
-* **Multimodal chatbot**: Natural language + image queries through FastAPI REST endpoints.
-* **Vector search pipeline**:
-
-  * S3 for image storage.
-  * PostgreSQL for metadata (URLs, hashes, dimensions).
-  * pgvector + CLIP embeddings (image + text).
-  * OCR text extraction for screenshots/diagrams.
-* **ANN indexing**: IVF/HNSW for fast similarity search (cosine/dot product).
-* **Context composition**:
-
-  * Multimodal models (GPT-4o / GPT-4o-mini) consume both images + OCR/captions.
-  * Text-only models consume captions/metadata.
+Built with **FastAPI**, **PostgreSQL + pgvector**, **Amazon S3**, **Dockerized services**, and **Angular + React micro-frontends**.
 
 ---
 
-##  RAG Flow (Conceptual)
+## Key Capabilities
 
-1. **Upload & Store**
+* **Micro-frontend UI**: Angular + React composed via `single-spa`, routed through JWT-secured gateways
+* **Backend services**: FastAPI REST APIs for ingestion, retrieval, and query orchestration
+* **Vector retrieval**:
 
-   * User uploads an image → store bytes in **S3**.
-   * Save metadata in **Postgres** (URL, hash, width/height).
-
-2. **Represent**
-
-   * Generate global visual embeddings (**CLIP-style**).
-   * Optional: run OCR/captioning → embed text → enrich search.
-
-3. **Index**
-
-   * Store vectors in **pgvector**.
-   * Build **ANN index** (IVF/HNSW).
-
-4. **Retrieve**
-
-   * Query text → embed with CLIP text tower → ANN search over image vectors.
-   * Hybrid retrieval (image + OCR/captions).
-   * Return top-k candidates.
-
-5. **Compose Context**
-
-   * **Multimodal models**: Pass image URLs + OCR text.
-   * **Text-only models**: Pass OCR/captions/metadata.
-
-6. **Answer**
-
-   * LLM answers using retrieved items, with citations.
+  * CLIP (HuggingFace) embeddings for text and images
+  * pgvector-backed similarity search with **ANN indexes (IVF / HNSW)**
+  * OCR-based enrichment for screenshots and diagrams
+* **Object storage**: Images stored in **Amazon S3**, referenced via metadata and embeddings
+* **RAG orchestration**: Retrieved image URLs, OCR text, and metadata composed into grounded LLM prompts
 
 ---
 
-##  Tech Stack
+## End-to-End Flow
 
-* **Frontend**: Angular + React (micro-frontends, single-spa).
-* **Backend**: FastAPI REST services.
-* **Auth**: JWT.
-* **Database**: PostgreSQL + pgvector, S3.
-* **Search**: ANN (IVF/HNSW).
-* **Embeddings**: HuggingFace CLIP + OCR text.
-* **Containerization**: Docker + docker-compose.
-* **Reasoning**: OpenAI GPT-4o / GPT-4o-mini multimodal models.
+1. **Ingest** – Upload documents/images → store binaries in **S3**, metadata in **PostgreSQL**
+2. **Embed** – Generate CLIP embeddings; optionally enrich with OCR/captions
+3. **Index** – Persist vectors in pgvector with ANN indexing
+4. **Retrieve** – Embed query → ANN search → hybrid retrieval over images + text
+5. **Compose** – Assemble multimodal or text-only context
+6. **Generate** – LLM responds with citations grounded in retrieved data
 
 ---
 
-##  Getting Started
+## Tech Stack
+
+**Frontend**: Angular, React, micro-frontends (`single-spa`)
+**Backend**: FastAPI, REST APIs, JWT auth
+**Data**: PostgreSQL, pgvector, Amazon S3
+**Search**: ANN (IVF / HNSW)
+**ML**: CLIP embeddings, OCR pipelines, multimodal LLMs (GPT-4o / GPT-4o-mini)
+**Infra**: Docker, docker-compose, Nginx
+
+---
+
+## Running Locally
 
 ```bash
-
-# Start docker services
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-Frontend apps run on `localhost:9000` (root-config), `4201` (Angular), `4202` (React).
-Backend available on `localhost:8000`.
-
-### Secure admin provisioning
-
-* Demo environments can opt-in to seed the `user/password` credentials by setting `CREATE_DEMO_USER=true` in the backend environment. Production deployments should leave this unset (default) to avoid installing test accounts.
-* To create real administrator accounts, use the FastAPI backend's CLI helper after exporting the required database environment variables:
-
-  ```bash
-  cd python-backend
-  CREATE_DEMO_USER=false DATABASE_URL=... JWT_SECRET=... \
-    python -m app.scripts.create_admin_user --username <admin> --password <strong-password>
-  ```
-
-  Omitting `--password` will prompt securely. The command hashes the password server-side and persists the user without exposing credentials in application logs.
+* Frontend root: `http://localhost:9000`
+* Backend API: `http://localhost:8000`
 
 ---
 
+## Secure User Provisioning
+
+```bash
+cd python-backend
+CREATE_DEMO_USER=false DATABASE_URL=... JWT_SECRET=... \
+python -m app.scripts.create_admin_user --username <admin> --password <password>
+```
+
+Passwords are hashed server-side and never logged.
+
+---
+
+## Design Goals
+
+* Scalable retrieval over mixed media
+* Clean separation of **storage, retrieval, and reasoning**
+* Extensible foundation for future RAG and multimodal systems
+
+---
