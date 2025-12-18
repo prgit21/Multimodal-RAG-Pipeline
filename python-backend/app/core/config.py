@@ -45,11 +45,7 @@ class Settings:
     jwt_secret: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    minio_endpoint: str = "localhost:9001"
-    minio_access_key: str = "minioadmin"
-    minio_secret_key: str = "minioadmin"
-    minio_bucket: str = "images"
-    minio_secure: bool = False
+    upload_dir: str = "uploads"
     cors_origins: List[str] = field(default_factory=_get_cors_origins)
     openai_api_url: str = "https://api.openai.com/v1/responses"
     openai_chat_api_url: str = "https://api.openai.com/v1/chat/completions"
@@ -68,11 +64,7 @@ def get_settings() -> Settings:
         access_token_expire_minutes=int(
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         ),
-        minio_endpoint=os.getenv("MINIO_ENDPOINT", "localhost:9001"),
-        minio_access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
-        minio_secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
-        minio_bucket=os.getenv("MINIO_BUCKET", "images"),
-        minio_secure=_str_to_bool(os.getenv("MINIO_SECURE"), False),
+        upload_dir=os.getenv("UPLOAD_DIR", "uploads"),
         cors_origins=_get_cors_origins(),
         openai_api_url=os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/responses"),
         openai_chat_api_url=os.getenv(

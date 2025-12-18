@@ -7,6 +7,7 @@ import threading
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text as sa_text
 from sqlalchemy.exc import NoSuchTableError
 
@@ -25,6 +26,7 @@ logger = logging.getLogger(__name__)
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI()
+    storage_client = get_storage_client()
 
     application.add_middleware(
         CORSMiddleware,
@@ -34,13 +36,20 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    storage_client.ensure_bucket()
+    application.mount(
+        "/uploads",
+        StaticFiles(directory=settings.upload_dir),
+        name="uploads",
+    )
+
     include_routers(application)
 
     @application.on_event("startup")
     def on_startup() -> None:
         init_database()
         init_default_user()
-        get_storage_client().ensure_bucket()
+        storage_client.ensure_bucket()
 
     @application.get("/api/hello")
     async def read_hello() -> dict[str, str]:

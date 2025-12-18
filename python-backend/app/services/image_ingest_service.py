@@ -18,13 +18,13 @@ from app.services.embedding_service import (
 )
 from app.services.ocr_service import OCRService, get_ocr_service
 from app.utils.hashing import sha256_hash
-from app.utils.storage import MinioStorageClient, get_storage_client
+from app.utils.storage import LocalStorageClient, get_storage_client
 
 
 class ImageIngestService:
     def __init__(
         self,
-        storage_client: MinioStorageClient,
+        storage_client: LocalStorageClient,
         embedding_service: EmbeddingService,
         ocr_service: OCRService,
     ) -> None:

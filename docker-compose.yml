@@ -11,47 +11,54 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   root-config:
-    build: .
+    image: node:20
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npm start
+    environment:
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
     ports: ["9000:9000"]
 
   angular-app:
     build: ./angular-app
     ports: ["4201:80"]
 
-  dashboard:
-    build: ./dashboard
-    ports: ["4200:80"]
+  # dashboard:
+  #   build: ./dashboard not needed will deprecate later
+  #   ports: ["4200:80"]
 
   react-app:
-    build: ./react-app
-    ports: ["8080:80"]
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./react-app:/app
+    command: npm start
+    environment:
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+    ports: ["8080:8080"]
 
   backend:
     build: ./python-backend
     env_file: ./python-backend/app/.env
+    volumes:
+      - ./python-backend/app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       postgres:
         condition: service_healthy
     ports: ["8000:8000"]
 
-  minio:
-    image: minio/minio
-    ports:
-      - "9001:9000"
-      - "9002:9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio-data:/data
+
+      #docker compose -f docker-compose.dev.yml up` for development with live reload
 
 volumes:
   postgres-data:
-  minio-data:

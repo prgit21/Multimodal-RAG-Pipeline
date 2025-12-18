@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Generator
 
-from pgvector.psycopg2 import register_vector
+from pgvector.psycopg import register_vector
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
