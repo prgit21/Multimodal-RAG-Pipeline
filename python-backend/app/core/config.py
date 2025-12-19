@@ -46,6 +46,10 @@ class Settings:
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     upload_dir: str = "uploads"
+    s3_bucket: Optional[str] = None
+    s3_region: Optional[str] = None
+    s3_endpoint_url: Optional[str] = None
+    s3_use_path_style: bool = False
     cors_origins: List[str] = field(default_factory=_get_cors_origins)
     openai_api_url: str = "https://api.openai.com/v1/responses"
     openai_chat_api_url: str = "https://api.openai.com/v1/chat/completions"
@@ -65,6 +69,10 @@ def get_settings() -> Settings:
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         ),
         upload_dir=os.getenv("UPLOAD_DIR", "uploads"),
+        s3_bucket=os.getenv("S3_BUCKET"),
+        s3_region=os.getenv("S3_REGION"),
+        s3_endpoint_url=os.getenv("S3_ENDPOINT_URL"),
+        s3_use_path_style=_str_to_bool(os.getenv("S3_USE_PATH_STYLE"), False),
         cors_origins=_get_cors_origins(),
         openai_api_url=os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/responses"),
         openai_chat_api_url=os.getenv(
