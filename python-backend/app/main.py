@@ -17,7 +17,7 @@ from app.db.session import SessionLocal, engine
 from app.repositories.users_repo import UserRepository
 from app.routers import auth, images, search
 from app.utils.hashing import hash_password
-from app.utils.storage import LocalStorageClient, get_storage_client
+from app.utils.storage import get_storage_client
 
 
 logger = logging.getLogger(__name__)
@@ -36,13 +36,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    if isinstance(storage_client, LocalStorageClient):
-        storage_client.ensure_bucket()
-        application.mount(
-            "/uploads",
-            StaticFiles(directory=settings.upload_dir),
-            name="uploads",
-        )
+    storage_client.ensure_bucket()
+    application.mount(
+        "/uploads",
+        StaticFiles(directory=settings.upload_dir),
+        name="uploads",
+    )
 
     include_routers(application)
 

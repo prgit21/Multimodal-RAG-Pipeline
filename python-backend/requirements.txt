@@ -13,5 +13,4 @@ Pillow
 sentence-transformers
 easyocr
 psycopg[binary]>=3.1
-boto3
 
