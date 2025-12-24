@@ -4,7 +4,7 @@ python-jose
 passlib[argon2]
 python-dotenv
 python-multipart
-SQLAlchemy
+SQLAlchemy>=2.0
 pgvector
 langchain
 langchain-openai
