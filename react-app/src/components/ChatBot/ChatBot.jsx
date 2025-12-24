@@ -252,15 +252,22 @@ export default function ChatBot() {
             : "No answer generated.");
 
         const citations = Array.isArray(data?.items)
-          ? data.items.map((item) => ({
-              id: item.id,
-              url: item.url,
-              score: item.score,
-              ocrText: item.ocr_text,
-              modalities: Array.isArray(item.modalities_used)
-                ? item.modalities_used
-                : [],
-            }))
+          ? data.items.map((item) => {
+              const rawUrl = item.url;
+              const resolvedUrl =
+                typeof rawUrl === "string" && rawUrl.startsWith("/")
+                  ? `${apiBase}${rawUrl}`
+                  : rawUrl;
+              return {
+                id: item.id,
+                url: resolvedUrl,
+                score: item.score,
+                ocrText: item.ocr_text,
+                modalities: Array.isArray(item.modalities_used)
+                  ? item.modalities_used
+                  : [],
+              };
+            })
           : [];
 
         const botMessage = {

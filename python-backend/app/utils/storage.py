@@ -34,8 +34,11 @@ class LocalStorageClient:
 
 
 @lru_cache
-def get_storage_client() -> LocalStorageClient:
-    return LocalStorageClient()
+def get_storage_client():
+    settings = get_settings()
+    # Temporarily force local storage even if S3 settings are present.
+    # TODO: Re-enable S3 when ready.
+    return LocalStorageClient(settings)
 
 
 __all__ = ["LocalStorageClient", "get_storage_client"]
