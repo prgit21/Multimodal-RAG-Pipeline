@@ -43,6 +43,7 @@ class RetrievalService:
         OCR_MODALITY: 0.4,
     }
     _MAX_K = 20
+    _TEXT_BACKFILL_LIMIT = 250
 
     def __init__(self, embedding_service: EmbeddingService) -> None:
         self._embedding_service = embedding_service
@@ -74,6 +75,7 @@ class RetrievalService:
             return []
 
         repository = ImageRepository(db)
+        self._ensure_text_embeddings(repository)
 
         top_k = min(k, self._MAX_K)
         pool_size = max(top_k * 2, top_k)
@@ -87,6 +89,29 @@ class RetrievalService:
         aggregated = self._merge_candidates(visual_candidates, text_candidates)
         results = self._rank_results(aggregated)
         return results[:top_k]
+
+    def _ensure_text_embeddings(self, repository: ImageRepository) -> None:
+        missing = repository.list_missing_text_embeddings(
+            limit=self._TEXT_BACKFILL_LIMIT
+        )
+        if not missing:
+            return
+        updates: List[tuple[ImageMetadata, List[float]]] = []
+        for metadata in missing:
+            text = (metadata.text or "").strip()
+            if not text:
+                continue
+            try:
+                embedding = self._embedding_service.encode_text(text)
+            except ValueError:
+                continue
+            updates.append((metadata, embedding))
+
+        if not updates:
+            return
+        for metadata, embedding in updates:
+            repository.set_text_embedding(metadata, embedding)
+        repository.commit()
 
     def _merge_candidates(
         self,

@@ -80,6 +80,28 @@ class ImageRepository:
             for record, dist in query.all()
         ]
 
+    def list_missing_text_embeddings(
+        self, limit: Optional[int] = None
+    ) -> List[ImageMetadata]:
+        query = (
+            self._session.query(ImageMetadata)
+            .filter(ImageMetadata.text.isnot(None))
+            .filter(ImageMetadata.text != "")
+            .filter(ImageMetadata.text_embedding.is_(None))
+        )
+        if limit is not None:
+            query = query.limit(limit)
+        return query.all()
+
+    def set_text_embedding(
+        self, metadata: ImageMetadata, embedding: List[float]
+    ) -> None:
+        metadata.text_embedding = embedding
+        self._session.add(metadata)
+
+    def commit(self) -> None:
+        self._session.commit()
+
 
 class EmbeddingRepository:
     def __init__(self, session: Session) -> None:
